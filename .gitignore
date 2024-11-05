@@ -1,0 +1,34 @@
+# Ignoruj katalog build - zawiera wyniki kompilacji CMake
+/build/
+/build/*
+/CMakeFiles/
+/CMakeCache.txt
+*.cmake
+
+# Pliki konfiguracyjne Visual Studio Code
+.vscode/
+/compile_commands.json
+
+# Pliki binarne
+*.exe
+*.dll
+*.o
+*.obj
+*.so
+*.a
+*.lib
+
+# Pliki tymczasowe i wygenerowane
+*.log
+*.tmp
+*.cache
+*.pdb
+*.pch
+
+# Pliki generowane przez system operacyjny
+.DS_Store
+Thumbs.db
+
+# Backupy edytorów
+*~
+*.swp
