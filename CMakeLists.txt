@@ -4,6 +4,12 @@ project(SDR_convert_to_HDR VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Flags to make the AVX on
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -mavx2 -mfma -ffast-math -O2")
+
+# I add the source project folder (CMAKE_SOURCE_DIR) for compiler to look for header files in it (like avx_mathfun.h)
+include_directories(${CMAKE_SOURCE_DIR})
+
 #  Dir to opencv
 set(OpenCV_DIR "C:/opencv-4.10.0/opencvbuild")
 

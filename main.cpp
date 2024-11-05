@@ -1,5 +1,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <immintrin.h> // Header for SIMD (AVX)
+#include "avx_mathfun.h" // for 256log and 256exp function
 
 cv::Mat convertSDRtoHDR(const cv::Mat& frame)
 {
@@ -13,9 +15,14 @@ cv::Mat convertSDRtoHDR(const cv::Mat& frame)
 
     float* pixelPtr = reinterpret_cast<float*>(hdrFrame.data);
 
-    for (int i = 0; i < numPixels; ++i) {
-        pixelPtr[i] = std::log(std::max(pixelPtr[i], 1e-8f)); // Avoiding log(0)
-        pixelPtr[i] = std::exp(gamma * pixelPtr[i]);
+    __m256 gammaVec = _mm256_set1_ps(gamma);
+    for (int i = 0; i < numPixels; i += 8) {
+        __m256 pixelVec = _mm256_load_ps(&pixelPtr[i]);
+        pixelVec = _mm256_max_ps(pixelVec, _mm256_set1_ps(1e-8f)); // Avoiding log(0)
+        __m256 logVec = log256_ps(pixelVec);
+        __m256 mulVec = _mm256_mul_ps(gammaVec, logVec);
+        __m256 resultVec = exp256_ps(mulVec);
+        _mm256_storeu_ps(&pixelPtr[i], resultVec);
     }
 
     // Factor for Brightness range scaling for HDR
