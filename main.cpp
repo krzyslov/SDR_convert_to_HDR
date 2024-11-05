@@ -3,6 +3,22 @@
 #include <immintrin.h> // Header for SIMD (AVX)
 #include "avx_mathfun.h" // for 256log and 256exp function
 
+
+cv::Mat convertToRec2020(const cv::Mat& inputFrame)
+{
+    cv::Mat outputFrame;
+    
+    // Rec. 709 to Rec. 2020 transformation matrix
+    cv::Mat conversionMatrix = (cv::Mat_<float>(3, 3) << 
+        0.6274, 0.3293, 0.0433,
+        0.0691, 0.9195, 0.0114,
+        0.0164, 0.0880, 0.8956);
+
+    cv::transform(inputFrame, outputFrame, conversionMatrix);
+    
+    return outputFrame;
+}
+
 cv::Mat convertSDRtoHDR(const cv::Mat& frame)
 {
     cv::Mat hdrFrame;
@@ -25,18 +41,21 @@ cv::Mat convertSDRtoHDR(const cv::Mat& frame)
         _mm256_storeu_ps(&pixelPtr[i], resultVec);
     }
 
+    // transforming colors from Rec. 709 to Rec. 2020
+    hdrFrame = convertToRec2020(hdrFrame);
+
     // Factor for Brightness range scaling for HDR
     float hdrScale = 1.5f;
     // Scaling
     cv::multiply(hdrFrame, hdrScale, hdrFrame);
 
     // Limiting pixel values ​​to 0-1 (to avoid excessive brightness)
-    cv::threshold(hdrFrame, hdrFrame, 1.0, 1.0, cv::THRESH_TRUNC);
+    //cv::threshold(hdrFrame, hdrFrame, 1.0, 1.0, cv::THRESH_TRUNC);
 
-    cv::Mat hdrFrame8U;
-    hdrFrame.convertTo(hdrFrame8U, CV_8U, 255); 
+    cv::Mat hdrFrame16U;
+    hdrFrame.convertTo(hdrFrame16U, CV_16U, 65535.0); 
 
-    return hdrFrame8U;
+    return hdrFrame16U;
 }
 
 int main()
@@ -68,6 +87,9 @@ int main()
         }
 
         cv::Mat HDR_frame = convertSDRtoHDR(SDR_frame);
+        writer.write(HDR_frame);
+
+
         cv::imshow("SDR FRAME", SDR_frame);
         cv::imshow("HDR_Frame", HDR_frame);
         
@@ -78,6 +100,7 @@ int main()
     }
 
     reader.release();
+    writer.release();
     cv::destroyAllWindows();
 
     return 0;
