@@ -4,7 +4,6 @@ This project demonstrates the conversion of Standard Dynamic Range (SDR) video t
 
 ## Features
 
-- **Tone Mapping**: Utilizes Reinhard tone mapping to adjust brightness, contrast, and detail visibility in shadows and highlights, giving the video a more dynamic HDR look.
 - **Color Space Conversion to Rec. 2020**: Converts the color space from Rec. 709 (used in SDR) to Rec. 2020, a wider color space standard for HDR, allowing for more vivid and realistic colors.
 - **Gamma Correction with SIMD AVX**: Implements gamma correction using SIMD AVX instructions for efficient parallel processing of pixels. This approach speeds up the gamma correction step by processing multiple pixels simultaneously, enhancing performance especially on large video frames.
 - **16-Bit Depth Support**: Scales the output to 16-bit depth, preserving more detail in bright and dark regions of the video.
